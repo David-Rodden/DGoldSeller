@@ -5,11 +5,9 @@ import org.rspeer.runetek.api.component.Shop;
 import org.rspeer.runetek.api.component.WorldHopper;
 import org.rspeer.runetek.providers.RSWorld;
 import org.rspeer.script.task.Task;
+import org.rspeer.ui.Log;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 class HopWorld extends Task {
@@ -18,7 +16,7 @@ class HopWorld extends Task {
 
     HopWorld(final DGoldSeller handler) {
         this.handler = handler;
-        worlds = Arrays.stream(Worlds.getLoaded()).filter(worlds -> !worlds.isMembers()).map(RSWorld::getId).collect(Collectors.toSet());
+        worlds = Arrays.stream(Worlds.getLoaded()).filter(worlds -> !worlds.isMembers() && !worlds.isSkillTotal() && !worlds.isPVP()).map(RSWorld::getId).collect(Collectors.toSet());
     }
 
     @Override
@@ -28,11 +26,21 @@ class HopWorld extends Task {
 
     @Override
     public int execute() {
+        Shop.close();
+        Time.sleepUntil(() -> !Shop.isOpen(), 1000);
+        if (Shop.isOpen()) return Random.mid(400, 800);
+        WorldHopper.open();
+        Time.sleepUntil(WorldHopper::isOpen, Random.mid(800, 1200));
         final int currentWorld = Worlds.getCurrent();
         handler.update(currentWorld, Shop.getQuantity("Gold bar"));
         final Map<Integer, Integer> info = handler.getInfo();
         final Set<Integer> recordedWorlds = info.keySet();
-        WorldHopper.hopTo(recordedWorlds.containsAll(worlds) ? info.entrySet().stream().min(Map.Entry.comparingByValue()).get().getKey() : Random.nextElement(getUnrecordedWorlds(recordedWorlds)));
+        if (recordedWorlds.containsAll(worlds)) {
+            final Optional<Map.Entry<Integer, Integer>> worldMin = info.entrySet().stream().min(Map.Entry.comparingByValue());
+            if (worldMin.isPresent()) WorldHopper.hopTo(worldMin.get().getKey());
+            else Log.info("Something's wrong: ");
+        }
+        WorldHopper.hopTo(Random.nextElement(getUnrecordedWorlds(recordedWorlds)));
         Time.sleepUntil(() -> Worlds.getCurrent() != currentWorld, 4000);
         return Random.mid(400, 600);
     }

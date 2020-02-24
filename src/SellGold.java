@@ -17,8 +17,15 @@ public class SellGold extends Task {
     @Override
     public int execute() {
         Optional.ofNullable(Inventory.getFirst("Gold bar")).ifPresent(b -> {
-            final int toSell = maxGold - Shop.getQuantity("Gold bar");
-            Shop.sell(item -> item.getName().equals(b.getName()), toSell);
+            int toSell = maxGold - Shop.getQuantity("Gold bar");
+            while (toSell != 0)
+                if (toSell >= 5) {
+                    Shop.sellFive("Gold bar");
+                    toSell -= 5;
+                } else {
+                    Shop.sellOne("Gold bar");
+                    toSell--;
+                }
             Time.sleepUntil(() -> Shop.getQuantity("Gold bar") >= maxGold, 4000);
         });
         return Random.mid(600, 800);
