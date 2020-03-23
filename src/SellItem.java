@@ -2,37 +2,36 @@ import org.rspeer.runetek.api.commons.Time;
 import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Shop;
 import org.rspeer.runetek.api.component.tab.Inventory;
-import org.rspeer.script.task.Task;
 
 import java.util.Optional;
 
-public class SellGold extends Task {
-    private final int maxGold = 20;
+public class SellItem extends SellTask {
+    private final int maxStock = 20;
 
     @Override
     public boolean validate() {
-        return Inventory.contains("Gold bar") && Shop.isOpen() && Shop.getQuantity("Gold bar") < maxGold;
+        return Inventory.contains(focusedItem) && Shop.isOpen() && Shop.getQuantity(focusedItem) < maxStock;
     }
 
     @Override
     public int execute() {
-        Optional.ofNullable(Inventory.getFirst("Gold bar")).ifPresent(b -> {
-            int toSell = maxGold - Shop.getQuantity("Gold bar");
+        Optional.ofNullable(Inventory.getFirst(focusedItem)).ifPresent(b -> {
+            int toSell = maxStock - Shop.getQuantity(focusedItem);
             while (toSell != 0)
                 if (toSell >= 5) {
-                    Shop.sellFive("Gold bar");
+                    Shop.sellFive(focusedItem);
                     toSell -= 5;
                 } else {
-                    Shop.sellOne("Gold bar");
+                    Shop.sellOne(focusedItem);
                     toSell--;
                 }
-            Time.sleepUntil(() -> Shop.getQuantity("Gold bar") >= maxGold, 4000);
+            Time.sleepUntil(() -> Shop.getQuantity(focusedItem) >= maxStock, 4000);
         });
         return Random.mid(600, 800);
     }
 
     @Override
     public String toString() {
-        return "Selling gold";
+        return "Selling " + focusedItem;
     }
 }

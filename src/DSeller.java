@@ -11,15 +11,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-@ScriptMeta(name = "DGoldSeller", developer = "Dungeonqueer", desc = "Sells gold", category = ScriptCategory.MONEY_MAKING)
-public class DGoldSeller extends TaskScript implements RenderListener {
+@ScriptMeta(name = "DSeller", developer = "Dungeonqueer", desc = "Sells selected item", category = ScriptCategory.MONEY_MAKING)
+public class DSeller extends TaskScript implements RenderListener {
     private Map<Integer, Integer> info;
 
     @Override
     public void onStart() {
         info = new HashMap<>();
         final Area shopArea = Area.rectangular(3024, 9849, 3041, 9842);
-        submit(new WalkToShop(shopArea), new OpenShop(shopArea), new SellGold(), new HopWorld(this));
+        submit(new WalkToShop(shopArea), new OpenShop(shopArea), new SellItem(), new HopWorld(this));
     }
 
     Map<Integer, Integer> getInfo() {

@@ -4,9 +4,8 @@ import org.rspeer.runetek.api.component.tab.Inventory;
 import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Area;
 import org.rspeer.runetek.api.scene.Players;
-import org.rspeer.script.task.Task;
 
-public class WalkToShop extends Task {
+public class WalkToShop extends SellTask {
     private final Area shopArea;
 
     WalkToShop(final Area shopArea) {
@@ -15,7 +14,7 @@ public class WalkToShop extends Task {
 
     @Override
     public boolean validate() {
-        return !shopArea.contains(Players.getLocal()) && Inventory.contains("Gold bar");
+        return !shopArea.contains(Players.getLocal()) && Inventory.contains(focusedItem);
     }
 
     @Override

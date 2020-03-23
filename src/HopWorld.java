@@ -4,24 +4,23 @@ import org.rspeer.runetek.api.commons.math.Random;
 import org.rspeer.runetek.api.component.Shop;
 import org.rspeer.runetek.api.component.WorldHopper;
 import org.rspeer.runetek.providers.RSWorld;
-import org.rspeer.script.task.Task;
 import org.rspeer.ui.Log;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-class HopWorld extends Task {
+class HopWorld extends SellTask {
     private final Set<Integer> worlds;
-    private final DGoldSeller handler;
+    private final DSeller handler;
 
-    HopWorld(final DGoldSeller handler) {
+    HopWorld(final DSeller handler) {
         this.handler = handler;
         worlds = Arrays.stream(Worlds.getLoaded()).filter(worlds -> !worlds.isMembers() && !worlds.isSkillTotal() && !worlds.isPVP()).map(RSWorld::getId).collect(Collectors.toSet());
     }
 
     @Override
     public boolean validate() {
-        return Shop.isOpen() && Shop.getQuantity("Gold bar") >= 20;
+        return Shop.isOpen() && Shop.getQuantity(focusedItem) >= 20;
     }
 
     @Override
@@ -32,7 +31,7 @@ class HopWorld extends Task {
         WorldHopper.open();
         Time.sleepUntil(WorldHopper::isOpen, Random.mid(800, 1200));
         final int currentWorld = Worlds.getCurrent();
-        handler.update(currentWorld, Shop.getQuantity("Gold bar"));
+        handler.update(currentWorld, Shop.getQuantity(focusedItem));
         final Map<Integer, Integer> info = handler.getInfo();
         final Set<Integer> recordedWorlds = info.keySet();
         if (recordedWorlds.containsAll(worlds)) {

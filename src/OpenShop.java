@@ -6,11 +6,10 @@ import org.rspeer.runetek.api.movement.Movement;
 import org.rspeer.runetek.api.movement.position.Area;
 import org.rspeer.runetek.api.scene.Npcs;
 import org.rspeer.runetek.api.scene.Players;
-import org.rspeer.script.task.Task;
 
 import java.util.Optional;
 
-public class OpenShop extends Task {
+public class OpenShop extends SellTask {
     private final Area shopArea;
 
     OpenShop(final Area shopArea) {
@@ -19,7 +18,7 @@ public class OpenShop extends Task {
 
     @Override
     public boolean validate() {
-        return shopArea.contains(Players.getLocal()) && Inventory.contains("Gold bar") && !Shop.isOpen();
+        return shopArea.contains(Players.getLocal()) && Inventory.contains(focusedItem) && !Shop.isOpen();
     }
 
     @Override
